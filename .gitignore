@@ -1,0 +1,24 @@
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+.vscode/
+.idea/
+
+# 依赖（本项目无构建依赖，留作以后扩展）
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+
+# 本地测试与截图临时目录
+.tools/
+.shots/
+*.tmp
+
+# 构建中间产物
+build/BuildInfo.g.cs
+build/app-256.png
+
+# 本地手动复制的旧版 exe 副本（不入库）
+dist/三个蛆行动（github版）.exe
