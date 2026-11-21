@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>三个蛆行动 · OPERATION THREE GRUBS</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ================= 标题画面 ================= -->
+<section id="screen-title" class="screen active">
+  <canvas id="title-canvas"></canvas>
+  <div class="title-scrim"></div>
+  <div class="title-content">
+    <div class="title-kicker"><span class="dot"></span>地下王国 · 特勤处机密档案 / 等级 Ⅶ</div>
+    <h1 class="game-title" data-text="三个蛆行动"><span>三</span><span>个</span><span>蛆</span><span>行</span><span>动</span></h1>
+    <div class="title-sub">O P E R A T I O N &nbsp; T H R E E &nbsp; G R U B S</div>
+    <p class="title-tag">三条蛆，一次进去一条。<br>带得走的，才算你的。</p>
+    <div class="title-actions">
+      <button id="btn-start" class="btn btn-primary btn-lg"><span class="btn-mark">▶</span> 进入行动准备</button>
+      <button id="btn-title-help" class="btn btn-ghost">操作说明</button>
+    </div>
+    <div class="title-footer">
+      <span id="title-save-info">档案：未建立</span>
+      <span class="sep">/</span>
+      <span>v1.0 · 致敬《三角洲行动》</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 行动准备（大厅） ================= -->
+<section id="screen-hangar" class="screen">
+  <div class="hangar-bg"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">3G</div>
+      <div class="brand-text">
+        <b>三个蛆行动</b>
+        <small>特勤处 · 危险行动</small>
+      </div>
+    </div>
+    <div class="topbar-stats">
+      <div class="stat-chip" title="通行货币"><span class="stat-ico">◈</span><b id="hangar-credits">0</b><small>虫币</small></div>
+      <div class="stat-chip" title="战备 = 武器 + 护甲 + 战术配件的总价值，达到地图准入才能进场"><span class="stat-ico gear">▣</span><b id="hangar-gear">0</b><small>战备</small></div>
+      <div class="stat-chip" title="累计撤离"><span class="stat-ico up">↗</span><b id="hangar-raids">0</b><small>撤离 / 行动</small></div>
+      <div class="stat-chip" title="总收益"><span class="stat-ico">✦</span><b id="hangar-total">0</b><small>总收益</small></div>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="btn-hangar-fullscreen">全屏</button>
+      <button class="icon-btn" id="btn-mute">音效 开</button>
+      <button class="icon-btn" id="btn-hangar-stash">仓库</button>
+      <button class="icon-btn" id="btn-hangar-shop">军械库 / 商店</button>
+      <button class="icon-btn" id="btn-hangar-help">操作</button>
+      <button class="icon-btn danger" id="btn-hangar-reset">重置档案</button>
+    </div>
+  </header>
+
+  <div class="hangar-grid">
+    <!-- 小队 -->
+    <div class="panel squad-panel">
+      <div class="panel-head">
+        <span class="panel-kicker">OPERATOR / 出战干员</span>
+        <span class="panel-note">本次单人渗透点选一条</span>
+      </div>
+      <div id="worm-cards" class="worm-cards"></div>
+      <div id="squad-extra" class="squad-extra"></div>
+      <div class="squad-hint">单人渗透：一次只带一条蛆进场，阵亡即本次行动结束。另外两条留在医疗舱/待命。</div>
+    </div>
+
+    <!-- 地图 -->
+    <div class="panel map-panel">
+      <div class="panel-head">
+        <span class="panel-kicker">TARGET AREA / 行动区域</span>
+        <span class="panel-note">选择战区与难度</span>
+      </div>
+      <div id="map-list" class="map-list"></div>
+      <div id="map-brief" class="map-brief"></div>
+      <div class="difficulty-row" id="difficulty-row">
+        <span class="diff-label">威胁等级</span>
+        <div class="diff-btns">
+          <button class="diff-btn" data-diff="0">常规</button>
+          <button class="diff-btn" data-diff="1">危险</button>
+          <button class="diff-btn" data-diff="2">绝密</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 行前准备 / 仓库 -->
+    <div class="panel prep-panel">
+      <div class="panel-head">
+        <span class="panel-kicker">LOADOUT / 行前准备</span>
+        <span class="panel-note" id="prep-note">保险箱默认开启</span>
+      </div>
+      <div id="loadout-list" class="loadout-list"></div>
+      <div class="prep-sep"></div>
+      <div class="panel-head tight"><span class="panel-kicker">STASH / 仓库战利品</span><span class="panel-note">出售换虫币</span></div>
+      <div id="stash-list" class="stash-list"></div>
+    </div>
+  </div>
+
+  <footer class="hangar-footer">
+    <div class="deploy-info">
+      <div class="deploy-map" id="deploy-map-name">—</div>
+      <div class="deploy-meta" id="deploy-meta">选择行动区域</div>
+    </div>
+    <button class="btn btn-primary btn-deploy" id="btn-deploy"><span class="deploy-glow"></span><span class="btn-mark">⬢</span> 开始行动 <kbd>ENTER</kbd></button>
+  </footer>
+</section>
+
+<!-- ================= 行动中 HUD ================= -->
+<section id="screen-raid" class="screen">
+  <canvas id="game-canvas"></canvas>
+  <div class="raid-vignette"></div>
+  <div id="raid-damage" class="raid-damage"></div>
+
+  <div class="hud-top">
+    <div class="hud-objective">
+      <div class="obj-kicker">当前行动 <span id="hud-map"></span> · <span id="hud-diff"></span> <span id="hud-stat"></span></div>
+      <div class="obj-text" id="hud-objective">搜集物资，找到撤离点并撤离。</div>
+      <div class="obj-contract" id="hud-contract"></div>
+      <div class="hud-keys">
+        <span><kbd>WASD</kbd>移动</span><span><kbd>左键</kbd>射击</span><span><kbd>R</kbd>换弹</span><span><kbd>Shift</kbd>技能</span><span><kbd>G</kbd>手雷</span><span><kbd>E</kbd>搜刮</span><span><kbd>F</kbd>撤离</span><span><kbd>Tab</kbd>清单</span>
+      </div>
+    </div>
+    <div class="hud-timer-wrap">
+      <div class="timer-label">行动剩余</div>
+      <div class="hud-timer" id="hud-timer">05:00</div>
+      <div class="timer-bar"><i id="hud-timer-bar"></i></div>
+    </div>
+    <div class="hud-loot">
+      <div class="loot-label">已搜刮价值</div>
+      <div class="loot-value" id="hud-loot">◇ 0</div>
+      <div class="loot-sub" id="hud-loot-count">0 件物资 · 0 kg</div>
+    </div>
+  </div>
+
+  <div class="hud-left" style="display:none">
+    <div class="squad-strip" id="hud-squad" style="display:none"></div>
+    <div class="hud-keys">
+      <div><kbd>WASD</kbd> 移动 <kbd>鼠标</kbd> 瞄准 <kbd>左键</kbd> 射击</div>
+      <div><kbd>R</kbd> 换弹 <kbd>G</kbd> 手雷 <kbd>Shift</kbd> 技能 <kbd>1</kbd>/<kbd>2</kbd> 医疗/烟雾</div>
+      <div><kbd>E</kbd> 搜刮 / 交互 <kbd>F</kbd> 撤离 <kbd>Tab</kbd> 物资清单</div>
+    </div>
+  </div>
+
+  <div class="hud-right">
+    <button class="hud-btn" id="btn-fullscreen" title="全屏 / 退出全屏（Alt+Enter）">全屏</button>
+    <div class="minimap-wrap">
+      <canvas id="minimap" width="220" height="160"></canvas>
+      <div class="minimap-label">TAC-MAP</div>
+    </div>
+    <div class="extract-box" id="extract-box">
+      <div class="extract-title">撤离点</div>
+      <div class="extract-dist" id="extract-dist">—</div>
+      <div class="extract-bar"><i id="extract-progress"></i></div>
+      <div class="extract-hint" id="extract-hint">进入撤离区后按住 F</div>
+    </div>
+  </div>
+
+  <div class="hud-bottom">
+    <div class="hp-wrap">
+      <div class="worm-tag" id="hud-worm-name">老绿 · 突击手</div>
+      <div class="hp-bar">
+        <i class="hp-fill" id="hud-hp"></i>
+        <i class="armor-fill" id="hud-armor"></i>
+        <span class="hp-text" id="hud-hp-text">100 / 100</span>
+      </div>
+      <div class="ability-wrap">
+        <div class="ability" id="hud-ability"><span class="ab-key">SHIFT</span><span class="ab-name" id="hud-ability-name">战地急救</span><i class="ab-cd" id="hud-ability-cd"></i></div>
+        <div class="grenade" id="hud-grenade">✹ <b id="hud-grenade-n">0</b></div>
+      </div>
+    </div>
+    <div class="ammo-wrap">
+      <div class="weapon-name" id="hud-weapon">AR-77「钻地虎」</div>
+      <div class="ammo-line"><b id="hud-mag">30</b><span class="slash">/</span><span id="hud-reserve">210</span></div>
+      <div class="reload-hint" id="hud-reload">按 R 换弹</div>
+    </div>
+  </div>
+
+  <div class="boss-bar" id="boss-bar">
+    <div class="boss-name" id="boss-name">母巢守卫</div>
+    <div class="boss-hp"><i id="boss-hp"></i></div>
+  </div>
+
+  <div class="event-feed" id="event-feed"></div>
+  <div class="center-toast" id="center-toast"></div>
+  <div class="channel-ui" id="channel-ui">
+    <div class="channel-ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" class="cr-bg"/><circle cx="50" cy="50" r="44" class="cr-fg" id="cr-fg"/></svg><b id="channel-num">5</b></div>
+    <div class="channel-text">撤离读秒中 · 保持在撤离区</div>
+  </div>
+  <div class="interact-hint" id="interact-hint"><kbd>E</kbd><span id="interact-text">搜刮</span></div>
+  <div class="subtitle" id="subtitle"></div>
+  <div class="crosshair" id="crosshair"><i class="ch-dot"></i><i class="ch-l"></i><i class="ch-r"></i><i class="ch-t"></i><i class="ch-b"></i></div>
+  <div class="raid-paused-overlay" id="raid-paused">
+    <div class="pause-card">
+      <h2>行动暂停</h2>
+      <p>按 <kbd>ESC</kbd> 继续 · 数据不会保存，直到撤离成功。</p>
+      <div class="pause-btns">
+        <button class="btn btn-primary" id="btn-resume">继续行动</button>
+        <button class="btn btn-ghost" id="btn-abandon">放弃行动（返回准备）</button>
+      </div>
+    </div>
+  </div>
+  <div class="inventory-overlay" id="inventory-overlay">
+    <div class="inv-card">
+      <div class="inv-head"><b>物资清单</b><span id="inv-total">合计 ◇ 0</span></div>
+      <div class="inv-grid" id="inv-grid"></div>
+      <div class="inv-foot">按 <kbd>Tab</kbd> 关闭 · 撤离成功后可折算为虫币</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 结算 ================= -->
+<section id="screen-result" class="screen">
+  <div class="result-card">
+    <div class="result-banner" id="result-banner">撤离成功</div>
+    <div class="result-sub" id="result-sub">OPERATION COMPLETE</div>
+
+    <div class="result-main">
+      <div class="result-stats" id="result-stats"></div>
+      <div class="result-loot">
+        <div class="rl-head">战利品清单 <span id="rl-total"></span></div>
+        <div class="rl-list" id="result-loot-list"></div>
+      </div>
+    </div>
+
+    <div class="result-flavor" id="result-flavor"></div>
+
+    <div class="result-actions">
+      <button class="btn btn-primary" id="btn-result-continue"><span class="btn-mark">▶</span> 返回行动准备</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 通用弹层 ================= -->
+<div id="modal" class="modal">
+  <div class="modal-card">
+    <div class="modal-head"><b id="modal-title">标题</b><button class="modal-x" id="modal-close">✕</button></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div id="tooltip" class="tooltip"></div>
+
+<script src="js/util.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/data.js"></script>
+<script src="js/render.js"></script>
+<script src="js/mapgen.js"></script>
+<script src="js/entity.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

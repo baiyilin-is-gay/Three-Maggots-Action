@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+# 《三个蛆行动》Linux 启动器
+# 用系统里的 Chromium 内核浏览器以无边框应用窗口打开本地游戏；
+# 独立 profile 保存存档，不依赖 Electron、不联网。
+set -eu
+
+FULLSCREEN=0
+for arg in "$@"; do
+  case "$arg" in
+    --fullscreen|-f) FULLSCREEN=1 ;;
+  esac
+done
+
+# 解析脚本自身路径（兼容通过 ~/.local/bin 软链接启动）
+resolve_self() {
+  local src="${BASH_SOURCE[0]}" dir
+  while [ -L "$src" ]; do
+    dir=$(cd -P "$(dirname -- "$src")" && pwd)
+    src=$(readlink -- "$src")
+    case "$src" in
+      /*) ;;
+      *) src="$dir/$src" ;;
+    esac
+  done
+  cd -P "$(dirname -- "$src")" && pwd
+}
+HERE=$(resolve_self)
+APP="$HERE/app/index.html"
+DATA="${THREEGRUBS_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/ThreeGrubs}"
+PROFILE="$DATA/profile"
+URL="file://$APP"
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+  cat <<'EOF'
+《三个蛆行动》 Linux 启动器
+
+用法：
+  ./ThreeGrubs            用无边框应用窗口打开游戏
+  ./ThreeGrubs --fullscreen  以全屏应用窗口打开
+  ./ThreeGrubs --help     显示本帮助
+
+要求：系统里有 Chromium 内核浏览器（Chrome / Chromium / Edge / Brave / Vivaldi）
+      或 Firefox（会以普通窗口打开）。
+
+存档：~/.local/share/ThreeGrubs/profile
+安装到应用菜单与 PATH：./install.sh
+EOF
+  exit 0
+fi
+
+if [ ! -f "$APP" ]; then
+  echo "错误：找不到游戏文件 $APP" >&2
+  echo "请确认 ThreeGrubs 脚本与 app/ 目录在同一文件夹内。" >&2
+  exit 1
+fi
+
+mkdir -p "$PROFILE"
+
+# 以 root 运行时 Chromium 需要 --no-sandbox（容器/WSL 常见）
+EXTRA=()
+if [ "$(id -u)" = "0" ]; then
+  EXTRA+=(--no-sandbox)
+  echo "提示：正在以 root 运行，已自动追加 --no-sandbox。" >&2
+fi
+
+find_chromium() {
+  local b
+  for b in google-chrome google-chrome-stable chromium chromium-browser \
+           microsoft-edge microsoft-edge-stable brave-browser vivaldi-stable opera; do
+    if command -v "$b" >/dev/null 2>&1; then
+      echo "$b"
+      return 0
+    fi
+  done
+  return 1
+}
+
+run_chromium() {
+  local bin="$1"
+  local args=(
+    --app="$URL"
+    --user-data-dir="$PROFILE"
+    --window-size=1440,900
+    --no-first-run
+    --no-default-browser-check
+    --disable-features=TranslateUI
+  )
+  if [ "${#EXTRA[@]}" -gt 0 ]; then
+    args+=("${EXTRA[@]}")
+  fi
+  if [ "$FULLSCREEN" = "1" ]; then
+    args+=(--start-fullscreen)
+  fi
+  if [ "${THREEGRUBS_DRY_RUN:-0}" = "1" ]; then
+    printf 'DRY-RUN: %s' "$bin"
+    printf ' %q' "${args[@]}"
+    printf '\n'
+    exit 0
+  fi
+  exec "$bin" "${args[@]}"
+}
+
+if CHROMIUM=$(find_chromium); then
+  run_chromium "$CHROMIUM"
+fi
+
+if command -v firefox >/dev/null 2>&1; then
+  if [ "${THREEGRUBS_DRY_RUN:-0}" = "1" ]; then
+    echo "DRY-RUN: firefox --new-window $URL"
+    exit 0
+  fi
+  exec firefox --new-window "$URL"
+fi
+
+if command -v xdg-open >/dev/null 2>&1; then
+  if [ "${THREEGRUBS_DRY_RUN:-0}" = "1" ]; then
+    echo "DRY-RUN: xdg-open $URL"
+    exit 0
+  fi
+  exec xdg-open "$URL"
+fi
+
+cat >&2 <<'EOF'
+错误：没有找到可用的浏览器。
+
+请安装一个 Chromium 内核浏览器（推荐）：
+  Debian / Ubuntu : sudo apt install chromium
+  Fedora          : sudo dnf install chromium
+  Arch            : sudo pacman -S chromium
+或者安装 Firefox：sudo apt install firefox
+
+安装后重新运行 ./ThreeGrubs 即可。
+EOF
+exit 1

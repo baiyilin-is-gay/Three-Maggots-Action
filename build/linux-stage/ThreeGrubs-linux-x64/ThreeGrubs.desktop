@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=三个蛆行动
+Name[en]=Operation Three Grubs
+Comment=2D 俯视角单人搜打撤
+Comment[en]=Solo top-down extraction shooter
+Exec=sh -c 'cd "$(dirname "$1")" && exec ./ThreeGrubs' _ %k
+Icon=ThreeGrubs
+Terminal=false
+Categories=Game;ActionGame;
