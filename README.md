@@ -14,3 +14,4 @@ Made by deepseek harness. If you're not Chinese, you can use Chat GPT, Claude, G
 (v0.1.1时更新)：加入了Linux版本，有人试试吗？
 
 (v0.2.0时更新)：修复了一个小bug，加入了仓库
+
