@@ -1,4 +1,4 @@
-由 deepseek harness制作 如果你不是中国人，可以使用 Chat GPT、Claude、Gemini、Google 翻译，或者任何你喜欢的方法，把以下内容翻译成英文或你用的语言，因为我的英语不太好。 
+Made by deepseek harness. If you're not Chinese, you can use Chat GPT, Claude, Gemini, Google Translate, or any method you like to translate the following content into English or the language you use, because my English isn't very good.
 
 中国人能飞~ 中国人能飞~ 中国人能飞~ 
 
