@@ -12,6 +12,7 @@ Made by deepseek harness. If you're not Chinese, you can use Chat GPT, Claude, G
 建议及反馈请发送至3635160284@qq.com或者issues上评论
 
 感谢GitHub用户@xuboran-is-gay 对Linux版本进行测试
+https://github.com/xuboran-is-gay
 
 (v0.1.1时更新)：加入了Linux版本，有人试试吗？
 
